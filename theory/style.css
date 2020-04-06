@@ -1,0 +1,27 @@
+.circle {
+    background-color: red;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    transition: all 0.5s;
+    margin: 20px 0 20px 100px;
+}
+
+.circle:hover {
+    background-color: aqua;
+    transform: scale(1.2);
+}
+
+.svg svg {
+    width: 300px;
+    height: 200px;
+}
+
+.svg svg ellipse {
+    fill: red;
+    transition: all 0.7s;
+}
+.svg svg ellipse:hover{
+    transform: scale(1.2);
+    fill: orange;
+}
