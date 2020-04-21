@@ -46,6 +46,10 @@ const settings = {
         }
     }
 };
+var score = 0;
+var goal = 2;
+
+const resBtn = $('.reset')
 function displayRes(res) {
     var text = " "
     if (res == 1) {
@@ -69,6 +73,20 @@ function computerChoice() {
     return settings[elId]
 }
 
+function startInfo(score){
+    $('#display-text h2').text('Make your choice')
+    $('#display-text p').text('current result: '+score)
+
+}
+function winDisp(){
+    $('#display-text h2').text('You are total winner')
+
+}
+function loseDisp(){
+    $('#display-text h2').text('You are total loser')
+
+}
+
 $('.buttons.player img').on('click', function () {
     var playerElementClass = $(this).attr('data-el')
     setActiveButton($(this))
@@ -76,5 +94,19 @@ $('.buttons.player img').on('click', function () {
     var computerBtn = $('.computer .' + computerElement.className);
     setActiveButton(computerBtn)
     var res = computerElement.compare(playerElementClass)
+    resBtn.addClass('active')
     displayRes(res)
+    score +=res;
+    console.log(score)
+    if (score === goal){
+        winDisp();
+
+    }else if(score === -goal){
+        loseDisp();
+    }
+});
+
+resBtn.on('click', function (){
+    $('.buttons img').addClass('active')
+    startInfo(score)
 });
