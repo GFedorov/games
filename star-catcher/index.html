@@ -29,6 +29,8 @@
         var game = new Phaser.Game(config);
         var score = 0;
         var scoreText;
+        var lives = 3;
+        var liveText;
 
         function preload() {
             this.load.image('sky', 'assets/sky.png');
@@ -93,6 +95,7 @@
             this.physics.add.collider(stars, platforms);
             this.physics.add.overlap(player, stars, collectStar, null, this);
             scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+            liveText = this.add.text(630, 16, 'lives: '+ lives, { fontSize: '32px', fill: '#000' });
             bombs = this.physics.add.group();
 
             this.physics.add.collider(bombs, platforms);
@@ -102,9 +105,14 @@
         function collectStar(player, star) {
             star.disableBody(true, true);
 
-            score += 10;
+            score += 1;
             scoreText.setText('Score: ' + score);
 
+            if(score%10 === 0){
+                lives+=1
+                liveText.setText('lives: '+ lives)
+
+            }
             if (stars.countActive(true) === 0) {
                 stars.children.iterate(function (child) {
 
@@ -122,11 +130,17 @@
             }
         }
         function hitBomb(player, bomb) {
+            lives-= 1;
+            liveText.setText('lives: '+ lives)
+            if (lives > 0){
+                return
+            }
             this.physics.pause();
 
             player.setTint(0xff0000);
 
             player.anims.play('turn');
+
 
             gameOver = true;
         }
