@@ -1,51 +1,12 @@
-const EL_ROCK = 1;
-const EL_PAPER = 2;
-const EL_SCISSORS = 3;
-const elements = [EL_ROCK, EL_PAPER, EL_SCISSORS];
-const settings = {
-    [EL_ROCK]: {
-        className: 'rock',
-        compare: function (otherClassName) {
-            if (otherClassName == 'rock') {
-                return 0
-            }
-            if (otherClassName == 'paper') {
-                return 1
-            }
-            if (otherClassName == 'scissors') {
-                return -1
-            }
-        }
-    },
-    [EL_PAPER]: {
-        className: 'paper',
-        compare: function (otherClassName) {
-            if (otherClassName == 'rock') {
-                return -1
-            }
-            if (otherClassName == 'paper') {
-                return 0
-            }
-            if (otherClassName == 'scissors') {
-                return 1
-            }
-        }
-    },
-    [EL_SCISSORS]: {
-        className: 'scissors',
-        compare: function (otherClassName) {
-            if (otherClassName == 'rock') {
-                return 1
-            }
-            if (otherClassName == 'paper') {
-                return -1
-            }
-            if (otherClassName == 'scissors') {
-                return 0
-            }
-        }
-    }
-};
+// добавить функцию compare
+// получает на вход два числа, возвращает число (-1 | 0 | 1)
+
+function compare(playerDice, computerDice) {
+    if (playerDice > computerDice) return 1;
+    if (playerDice == computerDice) return 0;
+    if (playerDice < computerDice) return -1;
+}
+
 var score = 0;
 var goal = 2;
 
@@ -61,52 +22,73 @@ function displayRes(res) {
     }
     $('#display-text h2').text(text)
 }
-function setActiveButton(btn) {
-    var wrapper = btn.parent();
-    wrapper.find('img').removeClass('active')
-    btn.addClass('active')
+
+// заменить на rollDice
+function rollDice() {
+    var userDiceValue = getRandomDiceValue();
+    userEl = $('.player.buttons img');
+    displayDiceResult(userEl, userDiceValue);
+    var computerDiceValue = getRandomDiceValue();
+    computerEl = $('.computer.buttons img');
+    displayDiceResult(computerEl, computerDiceValue);
+    var res = compare(userDiceValue, computerDiceValue);
+    displayRes(res)
+    return res;
 }
 
-function computerChoice() {
-    var index = Math.floor(Math.random() * elements.length);
-    var elId = elements[index];
-    return settings[elId]
+function displayDiceResult(targetEl, diceValue) {
+    targetEl.attr('src', 'img/dice-' + diceValue + '.png');
 }
 
-function startInfo(score){
-    $('#display-text h2').text('Make your choice')
-    $('#display-text p').text('current result: '+score)
+// function setActiveButton(btn) {
+//     var wrapper = btn.parent();
+//     wrapper.find('img').removeClass('active')
+//     btn.addClass('active')
+// }
+
+// заменить на getRandomDiceValue
+function getRandomDiceValue() {
+    return Math.floor(Math.random() * 6) + 1;
+}
+
+// оставить
+function startInfo(score) {
+    $('#display-text h2').text('Roll your dice')
+    $('#display-text p').text('current result: ' + score)
 
 }
-function winDisp(){
+function winDisp() {
     $('#display-text h2').text('You are total winner')
 
 }
-function loseDisp(){
+function loseDisp() {
     $('#display-text h2').text('You are total loser')
 
 }
 
+// переписать
 $('.buttons.player img').on('click', function () {
-    var playerElementClass = $(this).attr('data-el')
-    setActiveButton($(this))
-    var computerElement = computerChoice()
-    var computerBtn = $('.computer .' + computerElement.className);
-    setActiveButton(computerBtn)
-    var res = computerElement.compare(playerElementClass)
-    resBtn.addClass('active')
-    displayRes(res)
-    score +=res;
-    console.log(score)
-    if (score === goal){
+    // var playerElementClass = $(this).attr('data-el')
+    // setActiveButton($(this))
+    // var computerElement = computerChoice()
+    // var computerBtn = $('.computer .' + computerElement.className);
+    // setActiveButton(computerBtn)
+    // var res = computerElement.compare(playerElementClass)
+    // resBtn.addClass('active')
+    // displayRes(res)
+    score += rollDice();
+    if (score === goal) {
         winDisp();
-
-    }else if(score === -goal){
+        alert('Finish')
+    } else if (score === -goal) {
         loseDisp();
+        alert('Finish')
     }
 });
 
-resBtn.on('click', function (){
-    $('.buttons img').addClass('active')
-    startInfo(score)
-});
+startInfo(score)
+// заменить на "Кинуть снова"
+// resBtn.on('click', function () {
+//     $('.buttons img').addClass('active')
+//     startInfo(score)
+// });
