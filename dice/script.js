@@ -63,7 +63,6 @@ function winDisp() {
 }
 function loseDisp() {
     $('#display-text h2').text('You are total loser')
-
 }
 
 // переписать
