@@ -24,65 +24,26 @@ bot.command('/start', (ctx) => {
 })
 
 bot.command('/RPS', (ctx) => {
-  ctx.reply('Make your choice')
-})
-
-/*
-bot.command('/sport', (ctx) => {
-  ctx.reply('Select your sport', null, Markup
+  ctx.reply('Make your choice', null, Markup
     .keyboard([
-      'Football',
-      'Basketball',
+      'rock',
+      'paper',
+      'scissors'
     ])
     .oneTime());
 });
 
-bot.command('/mood', (ctx) => {
-  ctx.reply('How are you doing?', null, Markup
-    .keyboard([
-      [
-        Markup.button('Normally', 'primary'),
-      ],
-      [
-        Markup.button('Fine', 'positive'),
-        Markup.button('Bad', 'negative'),
-      ],
-    ]));
-});
-const scene = new Scene('meet',
-  (ctx) => {
-    ctx.scene.next()
-    ctx.reply('How old are you?')
-  },
-  (ctx) => {
-    ctx.session.age = +ctx.message.text
 
-    ctx.scene.next()
-    ctx.reply('What is your name?')
-  },
-  (ctx) => {
-    ctx.session.name = ctx.message.text
-
-    ctx.scene.leave()
-    ctx.reply(`Nice to meet you, ${ctx.session.name} (${ctx.session.age} years old)`)
-  },
-)
 const session = new Session()
-const stage = new Stage(scene)
 
 bot.use(session.middleware())
-bot.use(stage.middleware())
 
-bot.command('/meet', (ctx) => {
-  ctx.scene.enter('meet')
-})
-*/
-
+// Кости
 bot.command('/dice', (ctx) => {
- const userDice = choice();
- const computerDice = choice();
- const res = compare(userDice,computerDice);
- 
+  const userDice = choice();
+  const computerDice = choice();
+  const res = compare(userDice, computerDice);
+
   // choice,
   // getResText,
   // compare
@@ -91,18 +52,58 @@ bot.command('/dice', (ctx) => {
   opponents dice: ${computerDice}
   result: ${getResText(res)}`)
 })
+//Tick Tack Toe
 
+bot.command('/ttt',(ctx)=>{
+  const gameEl = ['-','-','X','0','-','0','-','-','X']
+  const gameElArr = gameEl.map((elem, index)=>{
+    return Markup.button(elem, 'primary', {index})
+  })
+  ctx.reply('How are you doing?', null, Markup
+  .keyboard(
+    gameElArr, {columns: 3}
+
+  ).oneTime(), 
+)
+})
 bot.on((ctx) => {
-  console.log(ctx);
-  if (!checkCommand(ctx.message.body)) {
+  console.log(ctx.message.payload)
+  const text = ctx.message.body || ctx.message.text
+  if (!checkCommand(text)) {
     ctx.reply('I don\'t understand')
+    return
   }
-  var computerElement = computerChoice()
-  var res = computerElement.compare(ctx.message.body)
+  ctx.session.score = ctx.session.score || 0
+ 
+  let computerElement = computerChoice()
+  let res = computerElement.compare(text)
+  ctx.session.score += res
+  console.log(ctx.session.score);
+  const goal = 2
+  if (ctx.session.score === goal) {
+    ctx.session.score = 0
+    ctx.reply(`${computerElement.className}
+  ${getResText(res)}
+  You are total Winner`);
+
+  } else if (ctx.session.score === -goal) {
+    ctx.session.score = 0
+    ctx.reply(`${computerElement.className}
+  ${getResText(res)}
+  You are total Loser`);
+  }
 
   ctx.reply(`${computerElement.className}
-    ${getResText(res)}`)
+  ${getResText(res)}`, null, Markup
+    .keyboard([
+      'rock',
+      'paper',
+      'scissors'
+    ])
+    .oneTime());
 })
 
 
 bot.startPolling()
+
+
