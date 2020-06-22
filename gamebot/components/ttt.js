@@ -35,8 +35,34 @@ const secPlayerTurn = (gameEl) => {
     }
     return newGameEl;
 }
+const matr = [
+    [1,1,1,0,0,0,0,0,0],
+    [0,0,0,1,1,1,0,0,0],
+    [0,0,0,0,0,0,1,1,1],
+    [1,0,0,1,0,0,1,0,0],
+    [0,1,0,0,1,0,0,1,0],
+    [0,0,1,0,0,1,0,0,1],
+    [1,0,0,0,1,0,0,0,1],
+    [0,0,1,0,1,0,1,0,0]
+]
+const isWinner = (gameEl, playerSign = 'X')=>{
+    for(let variant of matr){
+        let count = 0;
+        for(let i = 0; i<variant.length; i++){
+            if(variant[i]&&gameEl[i]== playerSign){
+                count+=1
+            }
+            
+        }
+        if(count == 3){
+            return true;
+        }
+    } 
+    return false;
+}
 module.exports = {
     firstPlayerTurn,
-    secPlayerTurn
+    secPlayerTurn,
+    isWinner
 
 }

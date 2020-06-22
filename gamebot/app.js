@@ -54,43 +54,76 @@ bot.command('/dice', (ctx) => {
   result: ${getResText(res)}`)
 })
 //Tick Tack Toe
-
-bot.command('/ttt', (ctx) => {
+const startTTT = (ctx) =>{
   ctx.session.gameEl = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
   const gameEl = ctx.session.gameEl;
   const gameElArr = gameEl.map((elem, index) => {
     return Markup.button(elem, 'primary', { index, game: 'ttt' })
   })
-  ctx.reply('How are you doing?', null, Markup
+  ctx.reply('Let\'s play', null, Markup
     .keyboard(
       gameElArr, { columns: 3 }
 
     ).oneTime(),
   )
-})
+}
+bot.command('/ttt', startTTT);
 bot.on((ctx) => {
   if (ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
     console.log('1')
     if (payload.game == 'ttt') {
+      if(payload.index == -1){
+        startTTT(ctx);
+        return
+      }
       const gameEl = ctx.session.gameEl;
+      let gameEnd = false;
       const res = TTT.firstPlayerTurn(payload.index, gameEl);
       if (res.success) {
+        if (TTT.isWinner(res.data, 'X')) {
+          gameEnd = 'X';
+          ctx.session.gameEl = null;
+        }
         const secData = TTT.secPlayerTurn(res.data);
-        const gameElArr = secData.map((elem, index) => {
-          return Markup.button(elem, 'primary', { index, game: 'ttt' })
-        })
+        if (!gameEnd && TTT.isWinner(secData, '0')) {
 
-        
-        ctx.session.gameEl = secData;
-        ctx.reply('Your turn', null, Markup
-          .keyboard(
-            gameElArr, { columns: 3 }
+          ctx.session.gameEl = null;
+          gameEnd = '0';
+        }
+        if (!gameEnd) {
+          const gameElArr = secData.map((elem, index) => {
 
-          ).oneTime(),
-        )
+            return Markup.button(elem, 'primary', { index, game: 'ttt' })
+          })
+
+
+          ctx.session.gameEl = secData;
+          ctx.reply('Your turn', null, Markup
+            .keyboard(
+              gameElArr, { columns: 3 }
+
+            ).oneTime(),
+          )
+          return;
+
+        }else{
+          const gameElArr = (gameEnd=='X' ? res.data: secData).map((elem, index) => {
+
+            return Markup.button(elem, 'primary', { index: -1, game: 'ttt' })
+          })
+          ctx.reply(gameEnd=='X' ? 'You WON': 'You LOSE' , null, Markup
+            .keyboard(
+              gameElArr, { columns: 3 }
+
+            ).oneTime(),
+          )
+            return
+        }
+
       } else {
         ctx.reply(res.message)
+        return;
       }
     }
   }
