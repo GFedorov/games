@@ -1,4 +1,6 @@
 require("dotenv").config();
+require('./models/db');
+const User = require('./models/User');
 const {
   checkCommand,
   computerChoice,
@@ -54,7 +56,15 @@ bot.command('/dice', (ctx) => {
   result: ${getResText(res)}`)
 })
 //Tick Tack Toe
-const startTTT = (ctx) =>{
+const startTTT = async (ctx) => {
+  let user  = await User.getByUserId(ctx.message.from_id)
+  if (!user){
+    const response = await bot.execute('users.get', {
+      user_ids: ctx.message.from_id,
+      fields: 'photo_50',
+    });
+    user = await User.create(response[0])
+  }
   ctx.session.gameEl = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
   const gameEl = ctx.session.gameEl;
   const gameElArr = gameEl.map((elem, index) => {
@@ -68,13 +78,12 @@ const startTTT = (ctx) =>{
   )
 }
 bot.command('/ttt', startTTT);
-bot.on((ctx) => {
+bot.on(async (ctx) => {
   if (ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
-    console.log('1')
     if (payload.game == 'ttt') {
-      if(payload.index == -1){
-        startTTT(ctx);
+      if (payload.index == -1) {
+        await startTTT(ctx);
         return
       }
       const gameEl = ctx.session.gameEl;
@@ -107,18 +116,18 @@ bot.on((ctx) => {
           )
           return;
 
-        }else{
-          const gameElArr = (gameEnd=='X' ? res.data: secData).map((elem, index) => {
+        } else {
+          const gameElArr = (gameEnd == 'X' ? res.data : secData).map((elem, index) => {
 
             return Markup.button(elem, 'primary', { index: -1, game: 'ttt' })
           })
-          ctx.reply(gameEnd=='X' ? 'You WON': 'You LOSE' , null, Markup
+          ctx.reply(gameEnd == 'X' ? 'You WON' : 'You LOSE', null, Markup
             .keyboard(
               gameElArr, { columns: 3 }
 
             ).oneTime(),
           )
-            return
+          return
         }
 
       } else {
@@ -127,9 +136,9 @@ bot.on((ctx) => {
       }
     }
   }
-  console.log(ctx.message.payload)
-  console.log(ctx.message.payload['game'])
-  console.log(typeof ctx.message.payload)
+  // console.log(ctx.message.payload)
+  // console.log(ctx.message.payload['game'])
+  // console.log(typeof ctx.message.payload)
 
   const text = ctx.message.body || ctx.message.text
   if (!checkCommand(text)) {
