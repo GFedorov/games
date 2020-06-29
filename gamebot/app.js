@@ -1,6 +1,7 @@
 require("dotenv").config();
 require('./models/db');
 const User = require('./models/User');
+const Step = require("./models/Step")
 const {
   checkCommand,
   computerChoice,
@@ -14,6 +15,7 @@ const Scene = require('node-vk-bot-api/lib/scene')
 const Session = require('node-vk-bot-api/lib/session')
 const Stage = require('node-vk-bot-api/lib/stage')
 const TTT = require("./components/ttt")
+
 const {
   choice,
   // getResText,
@@ -65,6 +67,8 @@ const startTTT = async (ctx) => {
     });
     user = await User.create(response[0])
   }
+  ctx.session.gameId = ctx.message.from_id+'_' + Date.now();
+  
   ctx.session.gameEl = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
   const gameEl = ctx.session.gameEl;
   const gameElArr = gameEl.map((elem, index) => {
@@ -89,17 +93,23 @@ bot.on(async (ctx) => {
       const gameEl = ctx.session.gameEl;
       let gameEnd = false;
       const res = TTT.firstPlayerTurn(payload.index, gameEl);
+      const stepFields = {scene: res.data,
+        player: ctx.message.from_id,
+        game_id: ctx.session.gameId};
+
       if (res.success) {
         if (TTT.isWinner(res.data, 'X')) {
+          stepFields.result = Step.RESULT_WIN;
           gameEnd = 'X';
           ctx.session.gameEl = null;
         }
         const secData = TTT.secPlayerTurn(res.data);
         if (!gameEnd && TTT.isWinner(secData, '0')) {
-
+          stepFields.result = Step.RESULT_LOSE;
           ctx.session.gameEl = null;
           gameEnd = '0';
         }
+        Step.create(stepFields)
         if (!gameEnd) {
           const gameElArr = secData.map((elem, index) => {
 
