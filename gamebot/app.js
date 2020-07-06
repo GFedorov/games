@@ -7,6 +7,7 @@ const {
   computerChoice,
   getResText
 } = require('./components/rps')
+const tttController = require('./controllers/ttt')
 
 const VkBot = require('node-vk-bot-api')
 
@@ -20,7 +21,9 @@ const {
   choice,
   // getResText,
   compare
-} = require('./components/dice')
+} = require('./components/dice');
+const { choose } = require("./controllers/ttt");
+const ttt = require("./controllers/ttt");
 
 const bot = new VkBot(process.env.TOKEN)
 
@@ -65,7 +68,11 @@ const startTTT = async (ctx) => {
       user_ids: ctx.message.from_id,
       fields: 'photo_50',
     });
-    user = await User.create(response[0])
+    const userFields = response[0]
+    user = await User.create({
+      ...userFields,
+      user_id: userFields.id
+    })
   }
   ctx.session.gameId = ctx.message.from_id+'_' + Date.now();
   
@@ -81,11 +88,15 @@ const startTTT = async (ctx) => {
     ).oneTime(),
   )
 }
+bot.command('/tttOnline', tttController.online)
 bot.command('/ttt', startTTT);
 bot.on(async (ctx) => {
   if (ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
     if (payload.game == 'ttt') {
+      if(payload.action = choose){
+        return await tttController.choose(ctx)
+      }
       if (payload.index == -1) {
         await startTTT(ctx);
         return

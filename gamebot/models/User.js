@@ -20,8 +20,12 @@ const getByUserId = async user_id => {
     }).exec()
     .then(user => user);
 }
+const list = async () => {
+    return await User.find()
+}
 
 module.exports = {
     create,
-    getByUserId
+    getByUserId,
+    list,
 }
