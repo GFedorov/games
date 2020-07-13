@@ -94,8 +94,14 @@ bot.on(async (ctx) => {
   if (ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
     if (payload.game == 'ttt') {
-      if(payload.action = choose){
-        return await tttController.choose(ctx)
+      if(payload.action == 'choose'){
+        return await tttController.choose(bot,ctx)
+      }
+      if(payload.action == 'decline'){
+        return await tttController.decline(bot,ctx)
+      }
+      if(payload.action == 'confirm'){
+        return await tttController.confirm(bot,ctx)
       }
       if (payload.index == -1) {
         await startTTT(ctx);

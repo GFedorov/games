@@ -13,7 +13,7 @@ const online = async ctx => {
 
             userBtns.push({
                 name: `${user.first_name} ${user.last_name}`,
-                data: { user_id: user.user_id , action: 'choose'}
+                data: { user_id: user.user_id, action: 'choose' }
             })
         }
     }
@@ -24,11 +24,83 @@ const online = async ctx => {
 
         ).oneTime())
 }
-const choose = async ctx => {
-    console.log(ctx)
-    ctx.reply('ok')
+
+const getData = (ctx)=>{
+    const {
+        message
+    } = ctx
+    const {
+        from_id,
+        payload
+    } = message
+    const parsed = JSON.parse(payload)
+    return {...parsed, from_id}
 }
+const choose = async (bot, ctx) => {
+
+    const {
+        message
+    } = ctx
+    const {
+        from_id,
+        payload
+    } = message
+    const to_id = JSON.parse(payload).user_id
+    bot.sendMessage(from_id, `Приглашение отправлено пользователю ${to_id}`)
+
+    console.log(from_id, to_id)
+    const btns = [];
+    btns.push({
+        name: `Да`,
+        data: { user_id: from_id, action: 'confirm' }
+
+    })
+    btns.push({
+        name: `Нет`,
+        data: { user_id: from_id, action: 'decline' }
+        
+    })
+    const vkBtns = btns.map(makeVkBtn)
+    bot.sendMessage(to_id, `Пользователь ${from_id} приглашает сыграть в крестики-нолики`, null, Markup
+        .keyboard(
+            vkBtns, { columns: 2 }
+        ).oneTime())
+
+}
+
+const decline = async (bot, ctx)=>{
+
+    const {
+        from_id,
+        user_id
+    } = getData(ctx)
+
+    bot.sendMessage(user_id, `Пользователь ${from_id} отклонил приглашение`)
+}
+
+const confirm = async (bot, ctx)=>{
+
+    const {
+        from_id,
+        user_id
+    } = getData(ctx)
+
+    bot.sendMessage(user_id, `Пользователь ${from_id} принял приглашение`)
+
+    const users = [from_id, user_id];
+    const randomIndex = Math.floor(Math.random() * users.length);
+    const firstPlayerId = users[randomIndex];
+    const secPlayerId = users.find(userId => userId != firstPlayerId)
+
+    bot.sendMessage(firstPlayerId, `Вы ходите крестиками`);
+    bot.sendMessage(secPlayerId, `Первым ходит игрок ${firstPlayerId}`)
+    
+}
+
+
 module.exports = {
     online,
-    choose
+    choose,
+    decline,
+    confirm
 }
