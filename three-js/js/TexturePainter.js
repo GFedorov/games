@@ -16,8 +16,14 @@
 
 let opacity = 1;
 let greenColor = 0;
+
+ var context;
+ 
+    //context.globalCompositeOperation="source-over";
+  
 setTimeout( ()=>{
     alert ("changed")
+    context.globalCompositeOperation="destination-out";
     greenColor = 255;
 },10000)
 
@@ -88,7 +94,9 @@ THREE.TexturePainter = function ( renderer, camera, mesh, src ) {
 		scope.canvas = document.createElement( "canvas" );
 		scope.canvas.width = scope.canvas.height = 4096;
 
-		scope.ctx = scope.canvas.getContext( "2d" );
+        scope.ctx = scope.canvas.getContext( "2d" );
+        context = scope.ctx;
+        context.globalCompositeOperation="source-over";
 
 		scope.texture = scope.mesh.material.map || new THREE.Texture( undefined, THREE.UVMapping );
 		scope.texture.image = scope.canvas;
@@ -179,7 +187,7 @@ THREE.TexturePainter = function ( renderer, camera, mesh, src ) {
 		var height = scope.canvas.height;
         var length = vectors.length / 2;
         
-        scope.ctx.fillStyle = `rgba( 250, ${greenColor}, 54, 0.1)`;
+        scope.ctx.fillStyle = `rgba( 250, ${greenColor}, 54, 0.3)`;
 
 		//scope.ctx.fillStyle = "rgba( 14, 158, 54, 1 )";
 
